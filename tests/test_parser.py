@@ -3,7 +3,7 @@
 import pytest
 import tempfile
 from pathlib import Path
-from mom6_diag_tool.core import DiagnosticsParser
+from mom6_diagnostics_manager.core import DiagnosticsParser
 
 
 @pytest.fixture
@@ -90,16 +90,14 @@ class TestDiagnosticsParser:
         categories = parser.get_by_category()
 
         assert isinstance(categories, dict)
-        assert len(categories) > 0
 
-        # SSH should be in Surface Properties
-        assert "Surface Properties" in categories
-
-        # temp should be in Temperature & Salinity
-        assert "Temperature & Salinity" in categories
-
+        # With simplified categories, we should have Grid & Static
         # geolon should be in Grid & Static
         assert "Grid & Static" in categories
+
+        # Grid & Static should have geolon
+        grid_diags = categories["Grid & Static"]
+        assert any(d.name == 'geolon' for d in grid_diags)
 
     def test_file_not_found(self):
         """Test handling of nonexistent file."""

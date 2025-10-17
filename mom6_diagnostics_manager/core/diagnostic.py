@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 from typing import List
+from .config_loader import get_config
 
 
 @dataclass
@@ -33,9 +34,11 @@ class Diagnostic:
         """Check if diagnostic is 3D.
 
         Returns:
-            True if diagnostic has vertical dimensions (zl or zi)
+            True if diagnostic has vertical dimensions (from config)
         """
-        return any(dim in self.dimensions for dim in ['zl', 'zi'])
+        config = get_config()
+        vertical_dims = config.get_vertical_dimensions()
+        return any(dim in self.dimensions for dim in vertical_dims)
 
     def is_2d(self) -> bool:
         """Check if diagnostic is 2D.

@@ -1,1 +1,1 @@
-"""Tests for mom6_diag_tool package."""
+"""Tests for mom6_diagnostics_manager package."""

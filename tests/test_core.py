@@ -1,7 +1,7 @@
 """Tests for core functionality."""
 
 import pytest
-from mom6_diag_tool.core import Diagnostic, DiagTableGenerator
+from mom6_diagnostics_manager.core import Diagnostic, DiagTableGenerator
 
 
 class TestDiagnostic:

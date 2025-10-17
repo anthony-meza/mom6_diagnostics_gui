@@ -23,6 +23,7 @@ This package provides both a user-friendly Jupyter notebook interface and comman
 ## Features
 
 - **Interactive Jupyter Interface**: Visual interface for selecting and configuring diagnostics
+- **Built-in Example Data**: Try the tool immediately with included sample diagnostics - no setup required!
 - **Smart Organization**: Diagnostics automatically categorized by type (Temperature, Velocity, Surface Properties, etc.)
 - **Search & Filter**: Quickly find diagnostics by name, category, or dimension (2D/3D)
 - **Multiple Output Files**: Configure different output frequencies (daily, monthly, static, etc.)
@@ -36,7 +37,7 @@ This package provides both a user-friendly Jupyter notebook interface and comman
 ```bash
 # Create a new conda environment
 conda env create -f environment.yml
-conda activate mom6-diag-tool
+conda activate mom6-diagnostics-manager
 
 # Install the package
 pip install -e .
@@ -59,12 +60,23 @@ pip install -e ".[notebook,dev]"
 conda build conda-recipe/
 
 # Install the built package
-conda install --use-local mom6-diag-tool
+conda install --use-local mom6-diagnostics-manager
 ```
 
 ## Quick Start
 
 ### Interactive Jupyter Notebook
+
+**Option 1: Try it immediately with example data** (recommended for first-time users)
+
+```python
+from mom6_diagnostics_manager import create_diag_table_ui
+
+# Uses built-in example diagnostic file - no setup needed!
+ui = create_diag_table_ui()
+```
+
+**Option 2: Use your own data**
 
 1. Start Jupyter:
    ```bash
@@ -72,7 +84,7 @@ conda install --use-local mom6-diag-tool
    ```
 
 2. Follow the notebook workflow:
-   - Load your `available_diags` file
+   - Load your `available_diags` file (or use the built-in example)
    - Set your CESM case name
    - Add output files (daily, monthly, static, etc.)
    - Select diagnostics using checkboxes
@@ -82,13 +94,13 @@ conda install --use-local mom6-diag-tool
 
 ```bash
 # Generate a diag_table with static fields only
-mom6-diag-tool -i available_diags.000000 -o diag_table --case-name NWA12 --static-only
+mom6-diagnostics-manager -i available_diags.000000 -o diag_table --case-name NWA12 --static-only
 
 # List all available diagnostics
-mom6-diag-tool -i available_diags.000000 --list-diagnostics
+mom6-diagnostics-manager -i available_diags.000000 --list-diagnostics
 
 # List diagnostics by category
-mom6-diag-tool -i available_diags.000000 --list-categories
+mom6-diagnostics-manager -i available_diags.000000 --list-categories
 ```
 
 ## Usage Examples
@@ -96,7 +108,7 @@ mom6-diag-tool -i available_diags.000000 --list-categories
 ### Python API
 
 ```python
-from mom6_diag_tool import DiagnosticsParser, DiagTableGenerator
+from mom6_diagnostics_manager import DiagnosticsParser, DiagTableGenerator
 
 # Parse available_diags file
 parser = DiagnosticsParser('available_diags.000000')
@@ -126,7 +138,7 @@ generator.save('diag_table')
 ### Interactive UI
 
 ```python
-from mom6_diag_tool import DiagnosticsParser, DiagTableGenerator, DiagTableUI
+from mom6_diagnostics_manager import DiagnosticsParser, DiagTableGenerator, DiagTableUI
 
 # Parse diagnostics
 parser = DiagnosticsParser('available_diags.000000')
@@ -145,7 +157,7 @@ ui.create_ui()
 
 ```
 CESM-diags-generator/
-├── mom6_diag_tool/           # Main package
+├── mom6_diagnostics_manager/           # Main package
 │   ├── __init__.py
 │   ├── core/                 # Core functionality
 │   │   ├── __init__.py
@@ -208,9 +220,9 @@ pytest tests/
 ### Code Formatting
 
 ```bash
-black mom6_diag_tool/
-flake8 mom6_diag_tool/
-mypy mom6_diag_tool/
+black mom6_diagnostics_manager/
+flake8 mom6_diagnostics_manager/
+mypy mom6_diagnostics_manager/
 ```
 
 ### Building Documentation
@@ -237,7 +249,7 @@ MIT License - see LICENSE file for details
 If you use this tool in your research, please cite:
 
 ```
-@software{mom6_diag_tool,
+@software{mom6_diagnostics_manager,
   author = {Meza, Anthony},
   title = {MOM6 Diagnostic Table Generator},
   year = {2025},
@@ -251,6 +263,12 @@ If you use this tool in your research, please cite:
 - MOM6 Development Team
 - CESM Community
 - NOAA/GFDL
+
+## Documentation
+
+- [Configuration Guide](docs/CONFIGURATION.md) - Learn how to customize the tool
+- [Contributing Guide](CONTRIBUTING.md) - Guidelines for contributors
+- [Handoff Document](docs/HANDOFF.md) - Comprehensive technical overview for maintainers
 
 ## Support
 

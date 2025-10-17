@@ -3,9 +3,9 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mom6-diag-tool"
+name = "mom6-diagnostics-manager"
 version = "0.1.0"
-description = "A tool for creating MOM6 diag_table files from available_diags output"
+description = "Interactive diagnostic manager for MOM6 ocean model - create and manage diag_table files"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
@@ -46,7 +46,7 @@ notebook = [
 ]
 
 [project.scripts]
-mom6-diag-tool = "mom6_diag_tool.cli.main:main"
+mom6-diagnostics-manager = "mom6_diagnostics_manager.cli.main:main"
 
 [project.urls]
 Homepage = "https://github.com/anthonymeza/CESM-diags-generator"

@@ -1,4 +1,4 @@
-"""Setup configuration for mom6_diag_tool package."""
+"""Setup configuration for mom6_diagnostics_manager package."""
 
 from setuptools import setup, find_packages
 from pathlib import Path
@@ -8,11 +8,11 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text() if (this_directory / "README.md").exists() else ""
 
 setup(
-    name='mom6-diag-tool',
+    name='mom6-diagnostics-manager',
     version='0.1.0',
     author='Anthony Meza',
     author_email='',
-    description='A tool for creating MOM6 diag_table files from available_diags output',
+    description='Interactive diagnostic manager for MOM6 ocean model - create and manage diag_table files',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/anthonymeza/CESM-diags-generator',
@@ -51,7 +51,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'mom6-diag-tool=mom6_diag_tool.cli.main:main',
+            'mom6-diagnostics-manager=mom6_diagnostics_manager.cli.main:main',
         ],
     },
     include_package_data=True,

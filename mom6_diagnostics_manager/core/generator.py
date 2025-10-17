@@ -2,6 +2,11 @@
 
 from pathlib import Path
 from typing import List, Dict, Optional
+from .constants import (
+    DEFAULT_BASE_YEAR, DEFAULT_BASE_MONTH, DEFAULT_BASE_DAY,
+    DEFAULT_FILE_FORMAT, DEFAULT_TIME_AXIS_UNITS, DEFAULT_TIME_AXIS_NAME,
+    DEFAULT_PACKING, DEFAULT_TIME_SAMPLING
+)
 
 
 class DiagTableGenerator:
@@ -21,14 +26,16 @@ class DiagTableGenerator:
     """
 
     def __init__(self, title: str = "MOM6 Simulation",
-                 base_year: int = 1900, base_month: int = 1, base_day: int = 1):
+                 base_year: int = DEFAULT_BASE_YEAR,
+                 base_month: int = DEFAULT_BASE_MONTH,
+                 base_day: int = DEFAULT_BASE_DAY):
         """Initialize the generator.
 
         Args:
             title: Title for the diag_table
-            base_year: Base year for time axis (default: 1900)
-            base_month: Base month for time axis (default: 1)
-            base_day: Base day for time axis (default: 1)
+            base_year: Base year for time axis (default from constants)
+            base_month: Base month for time axis (default from constants)
+            base_day: Base day for time axis (default from constants)
         """
         self.title = title
         self.base_year = base_year
@@ -43,8 +50,10 @@ class DiagTableGenerator:
         self.fields = []
 
     def add_file(self, file_name: str, output_freq: int, output_freq_units: str = "days",
-                 file_format: int = 1, time_axis_units: str = "days",
-                 time_axis_name: str = "time", new_file_freq: Optional[int] = None,
+                 file_format: int = DEFAULT_FILE_FORMAT,
+                 time_axis_units: str = DEFAULT_TIME_AXIS_UNITS,
+                 time_axis_name: str = DEFAULT_TIME_AXIS_NAME,
+                 new_file_freq: Optional[int] = None,
                  new_file_freq_units: Optional[str] = None) -> Dict:
         """Add file definition.
 
@@ -60,7 +69,21 @@ class DiagTableGenerator:
 
         Returns:
             Dictionary containing the file definition
+
+        Raises:
+            ValueError: If parameters are invalid
         """
+        # Validate inputs
+        if not file_name:
+            raise ValueError("file_name cannot be empty")
+
+        valid_freq_units = ['hours', 'days', 'months', 'years']
+        if output_freq_units not in valid_freq_units:
+            raise ValueError(f"output_freq_units must be one of {valid_freq_units}")
+
+        if new_file_freq is not None and new_file_freq_units is None:
+            raise ValueError("new_file_freq_units must be specified when new_file_freq is provided")
+
         # Check if file already exists
         for f in self.files:
             if f['file_name'] == file_name:
@@ -80,9 +103,10 @@ class DiagTableGenerator:
         return file_def
 
     def add_field(self, module_name: str, field_name: str, file_name: str,
-                  output_name: Optional[str] = None, time_sampling: str = "all",
+                  output_name: Optional[str] = None,
+                  time_sampling: str = DEFAULT_TIME_SAMPLING,
                   reduction_method: str = "none", regional_section: str = "none",
-                  packing: int = 2) -> Dict:
+                  packing: int = DEFAULT_PACKING) -> Dict:
         """Add field definition.
 
         Args:
@@ -97,7 +121,22 @@ class DiagTableGenerator:
 
         Returns:
             Dictionary containing the field definition
+
+        Raises:
+            ValueError: If parameters are invalid
         """
+        # Validate inputs
+        if not module_name:
+            raise ValueError("module_name cannot be empty")
+        if not field_name:
+            raise ValueError("field_name cannot be empty")
+        if not file_name:
+            raise ValueError("file_name cannot be empty")
+
+        valid_packing = [1, 2, 4, 8]
+        if packing not in valid_packing:
+            raise ValueError(f"packing must be one of {valid_packing}")
+
         if output_name is None:
             output_name = field_name
 
@@ -140,6 +179,63 @@ class DiagTableGenerator:
         """
         return [f for f in self.fields if f['file_name'] == file_name]
 
+    def _format_file_line(self, file_def: Dict) -> str:
+        """Format a file definition line for diag_table.
+
+        Args:
+            file_def: Dictionary containing file definition parameters
+
+        Returns:
+            Formatted file line string
+        """
+        base_line = (
+            f'"{file_def["file_name"]}", '
+            f'{file_def["output_freq"]}, '
+            f'"{file_def["output_freq_units"]}", '
+            f'{file_def["file_format"]}, '
+            f'"{file_def["time_axis_units"]}", '
+            f'"{file_def["time_axis_name"]}"'
+        )
+
+        if file_def['new_file_freq'] is not None:
+            base_line += f', {file_def["new_file_freq"]}, "{file_def["new_file_freq_units"]}"'
+
+        return base_line
+
+    def _format_field_line(self, field_def: Dict) -> str:
+        """Format a field definition line for diag_table.
+
+        Args:
+            field_def: Dictionary containing field definition parameters
+
+        Returns:
+            Formatted field line string
+        """
+        return (
+            f'"{field_def["module_name"]}", '
+            f'"{field_def["field_name"]}", '
+            f'"{field_def["output_name"]}", '
+            f'"{field_def["file_name"]}", '
+            f'"{field_def["time_sampling"]}", '
+            f'"{field_def["reduction_method"]}", '
+            f'"{field_def["regional_section"]}", '
+            f'{field_def["packing"]}'
+        )
+
+    def _group_fields_by_file(self) -> Dict[str, List[Dict]]:
+        """Group field definitions by their output file.
+
+        Returns:
+            Dictionary mapping file names to lists of field definitions
+        """
+        files_with_fields = {}
+        for field_def in self.fields:
+            fname = field_def['file_name']
+            if fname not in files_with_fields:
+                files_with_fields[fname] = []
+            files_with_fields[fname].append(field_def)
+        return files_with_fields
+
     def generate(self) -> str:
         """Generate diag_table content.
 
@@ -158,12 +254,7 @@ class DiagTableGenerator:
 
         # File sections
         for file_def in self.files:
-            file_line = f'"{file_def["file_name"]}", {file_def["output_freq"]}, "{file_def["output_freq_units"]}", {file_def["file_format"]}, "{file_def["time_axis_units"]}", "{file_def["time_axis_name"]}"'
-
-            if file_def['new_file_freq'] is not None:
-                file_line += f', {file_def["new_file_freq"]}, "{file_def["new_file_freq_units"]}"'
-
-            lines.append(file_line)
+            lines.append(self._format_file_line(file_def))
 
         lines.append('')
 
@@ -172,19 +263,13 @@ class DiagTableGenerator:
         lines.append('#=========================')
 
         # Group fields by file for better organization
-        files_with_fields = {}
-        for field_def in self.fields:
-            fname = field_def['file_name']
-            if fname not in files_with_fields:
-                files_with_fields[fname] = []
-            files_with_fields[fname].append(field_def)
+        files_with_fields = self._group_fields_by_file()
 
         # Field sections (organized by file)
         for fname, fields in files_with_fields.items():
             lines.append(f'# "{fname}"')
             for field_def in fields:
-                field_line = f'"{field_def["module_name"]}", "{field_def["field_name"]}", "{field_def["output_name"]}", "{field_def["file_name"]}", "{field_def["time_sampling"]}", "{field_def["reduction_method"]}", "{field_def["regional_section"]}", {field_def["packing"]}'
-                lines.append(field_line)
+                lines.append(self._format_field_line(field_def))
             lines.append('')
 
         return '\n'.join(lines)

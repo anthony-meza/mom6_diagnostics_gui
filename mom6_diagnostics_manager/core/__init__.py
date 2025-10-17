@@ -3,5 +3,6 @@
 from .diagnostic import Diagnostic
 from .parser import DiagnosticsParser
 from .generator import DiagTableGenerator
+from . import constants
 
-__all__ = ['Diagnostic', 'DiagnosticsParser', 'DiagTableGenerator']
+__all__ = ['Diagnostic', 'DiagnosticsParser', 'DiagTableGenerator', 'constants']

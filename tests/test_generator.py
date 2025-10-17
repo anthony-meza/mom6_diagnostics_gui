@@ -3,7 +3,7 @@
 import pytest
 import tempfile
 from pathlib import Path
-from mom6_diag_tool.core import DiagTableGenerator
+from mom6_diagnostics_manager.core import DiagTableGenerator
 
 
 class TestDiagTableGenerator:
