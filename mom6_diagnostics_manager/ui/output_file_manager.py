@@ -7,7 +7,7 @@ configuration widgets.
 import ipywidgets as widgets
 from IPython.display import clear_output
 from typing import Callable, Optional
-from .widgets import (
+from .widget_builders import (
     create_button, create_text_widget, create_dropdown,
     create_number_input, create_section_header, create_status_html,
     create_hbox_row, create_float_input
@@ -164,7 +164,7 @@ class FileManagerUI:
             self.add_file_widgets['header'],
             self.add_file_widgets['name'],
             self.add_file_widgets['output']
-        ])
+        ], layout=widgets.Layout(width='100%'))
 
 
 class FileConfigUI:
@@ -208,15 +208,16 @@ class FileConfigUI:
         # Create configuration widgets
         freq_widget = create_number_input(
             file_config['output_freq'],
-            description='Freq:',
-            disabled=is_static
+            description='Output freq.:',
+            disabled=is_static,
+            width='320px'
         )
 
         units_widget = create_dropdown(
             options=['hours', 'days', 'months', 'years'],
             value=file_config['output_freq_units'],
-            description='Units:',
-            width='48%',
+            description='Freq. units:',
+            width='320px',
             disabled=is_static
         )
 
@@ -228,22 +229,22 @@ class FileConfigUI:
         module_widget = create_dropdown(
             options=sorted(list(all_modules)),
             value='ocean_model',
-            description='Module:',
-            width='48%'
+            description='Module name:',
+            width='320px'
         )
 
         reduction_widget = create_dropdown(
             options=['average', 'min', 'max', 'none'],
             value='average',
-            description='Reduction:',
-            width='48%'
+            description='Reduction method:',
+            width='320px'
         )
 
         packing_widget = create_dropdown(
             options=[('real*8', 1), ('real*4', 2), ('16-bit int', 4), ('1-byte', 8)],
             value=2,
-            description='Packing:',
-            width='48%'
+            description='Data precision:',
+            width='320px'
         )
 
         # Regional configuration
@@ -303,9 +304,9 @@ class FileConfigUI:
         # Build layout
         config_widgets = [
             widgets.HTML(f"<b>File: {file_name}</b>"),
-            create_hbox_row(freq_widget, units_widget),
-            create_hbox_row(module_widget, reduction_widget),
-            create_hbox_row(packing_widget),
+            widgets.HBox([freq_widget, units_widget], layout=widgets.Layout(column_gap='10px')),
+            widgets.HBox([module_widget, reduction_widget], layout=widgets.Layout(column_gap='10px')),
+            widgets.HBox([packing_widget]),
             regional_widgets['dropdown'],
             regional_widgets['container'],
             widgets.HTML("<br>"),
@@ -324,7 +325,7 @@ class FileConfigUI:
         regional_dropdown = create_dropdown(
             options=['none', 'global', 'box'],
             value='none',
-            description='Regional:'
+            description='Regional section:'
         )
 
         # Box input widgets (initially hidden)

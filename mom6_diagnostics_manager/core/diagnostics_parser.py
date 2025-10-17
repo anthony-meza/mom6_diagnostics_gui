@@ -1,22 +1,27 @@
-"""Parser for MOM6 available_diags files."""
+"""Parser for MOM6 available_diags files.
+
+Parses MOM6's available_diags output into Diagnostic objects. Includes
+intelligent caching using pickle for faster repeated loads.
+"""
 
 import re
-import pickle
-import os
 from typing import Dict, List, Optional
-from .diagnostic import Diagnostic
+from .diagnostic_field import Diagnostic
 from .config_loader import get_config
+from .cache_manager import CacheManager
 
 
 class DiagnosticsParser:
-    """Parser for available_diags files from MOM6.
+    """Parse MOM6 available_diags files into structured Diagnostic objects.
 
-    This class parses the text output from MOM6's available_diags file
-    which lists all available diagnostic fields and their metadata.
+    Extracts diagnostic metadata from MOM6's text output and provides
+    categorization and caching functionality.
 
     Attributes:
         filepath: Path to the available_diags file
-        diagnostics: Dictionary mapping diagnostic names to Diagnostic objects
+        diagnostics: Dict mapping diagnostic names to Diagnostic objects
+        use_cache: Whether caching is enabled
+        config: Configuration object
     """
 
     def __init__(self, filepath: str, use_cache: bool = True, config_path: Optional[str] = None):
@@ -31,19 +36,29 @@ class DiagnosticsParser:
         self.diagnostics: Dict[str, Diagnostic] = {}
         self.use_cache = use_cache
         self.config = get_config(config_path)
+
+        # Initialize cache manager
         cache_suffix = self.config.get('cache.suffix', '.cache')
-        self._cache_path = filepath + cache_suffix
+        max_caches = self.config.get('cache.max_files', 6)
+        self.cache = CacheManager(
+            cache_path=filepath + cache_suffix,
+            cache_suffix=cache_suffix,
+            max_caches=max_caches
+        )
 
         # Try to load from cache first
-        if use_cache and self._load_from_cache():
-            return
+        if use_cache and self.cache.is_valid(filepath):
+            cached_data = self.cache.load()
+            if cached_data is not None:
+                self.diagnostics = cached_data
+                return
 
         # Otherwise parse the file
         self._parse()
 
         # Save to cache for next time
         if use_cache:
-            self._save_to_cache()
+            self.cache.save(self.diagnostics)
 
     def _parse(self):
         """Parse the available_diags file."""
@@ -114,100 +129,35 @@ class DiagnosticsParser:
             return [item.strip() for item in match.group(1).split(',')]
         return [value.strip()] if value else []
 
-    def _load_from_cache(self) -> bool:
-        """Load diagnostics from pickle cache if available and valid.
-
-        Returns:
-            True if cache was loaded successfully, False otherwise
-        """
-        try:
-            # Check if cache exists
-            if not os.path.exists(self._cache_path):
-                return False
-
-            # Check if cache is newer than source file
-            cache_mtime = os.path.getmtime(self._cache_path)
-            source_mtime = os.path.getmtime(self.filepath)
-
-            if cache_mtime < source_mtime:
-                # Cache is outdated
-                return False
-
-            # Load from cache
-            with open(self._cache_path, 'rb') as f:
-                self.diagnostics = pickle.load(f)
-
-            return True
-
-        except Exception:
-            # If anything goes wrong, just parse normally
-            return False
-
-    def _save_to_cache(self):
-        """Save diagnostics to pickle cache."""
-        try:
-            with open(self._cache_path, 'wb') as f:
-                pickle.dump(self.diagnostics, f, protocol=pickle.HIGHEST_PROTOCOL)
-        except Exception:
-            # Silently ignore cache save errors
-            pass
-
     def clear_cache(self) -> bool:
         """Delete the cache file for this diagnostics file.
 
         Returns:
             True if cache was deleted, False if it didn't exist
-
-        Example:
-            >>> parser = DiagnosticsParser('available_diags.000000')
-            >>> parser.clear_cache()  # Remove cache file
-            True
         """
-        if os.path.exists(self._cache_path):
-            try:
-                os.remove(self._cache_path)
-                return True
-            except Exception as e:
-                print(f"Warning: Could not delete cache file: {e}")
-                return False
-        return False
+        return self.cache.clear()
 
     @staticmethod
-    def clear_all_caches(directory: str = '.', pattern: str = '*.cache') -> int:
+    def clear_all_caches(directory: str = '.', suffix: str = '.cache') -> int:
         """Delete all cache files in a directory.
 
         Args:
-            directory: Directory to search for cache files (default: current directory)
-            pattern: Glob pattern for cache files (default: '*.cache')
+            directory: Directory to search (default: current directory)
+            suffix: Cache file suffix (default: '.cache')
 
         Returns:
             Number of cache files deleted
-
-        Example:
-            >>> DiagnosticsParser.clear_all_caches('.')
-            3  # Deleted 3 cache files
         """
-        from pathlib import Path
-        count = 0
-        cache_dir = Path(directory)
-
-        for cache_file in cache_dir.glob(pattern):
-            try:
-                cache_file.unlink()
-                count += 1
-            except Exception as e:
-                print(f"Warning: Could not delete {cache_file}: {e}")
-
-        return count
+        return CacheManager.clear_all(directory, suffix)
 
     def get_by_category(self) -> Dict[str, List[Diagnostic]]:
-        """Organize diagnostics by categories.
+        """Organize diagnostics by categories based on keyword matching.
 
-        Simple categorization: Grid & Static and everything else.
-        Only returns categories that have diagnostics (dynamic).
+        Categories and keywords are defined in config.yml. Only returns
+        non-empty categories. Each diagnostic assigned to first matching category.
 
         Returns:
-            Dictionary mapping category names to lists of Diagnostic objects
+            Dict mapping category names to lists of Diagnostic objects
         """
         # Load category keywords from config
         category_keywords = self.config.get_category_keywords()

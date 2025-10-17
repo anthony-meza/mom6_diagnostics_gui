@@ -1,2 +1,24 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Python files
+*.py text eol=lf
+*.pyx text eol=lf
+
+# Jupyter notebooks - strip output on diff
+*.ipynb filter=nbstripout diff=ipynb
+
+# Config files
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.rst text eol=lf
+
+# Data files (treat as binary)
+*.nc binary
+*.dat binary
+*.cache binary

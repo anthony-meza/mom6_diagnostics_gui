@@ -1,7 +1,15 @@
-"""MOM6 Diagnostic Table Generator
+"""MOM6 Diagnostics Manager - Interactive tool for creating diag_table files.
 
-A tool for creating diag_table files from MOM6's available_diags output.
-Provides both interactive Jupyter notebook interface and command-line tools.
+Provides three ways to configure MOM6 diagnostic outputs:
+1. Interactive Jupyter UI - Visual, point-and-click selection
+2. Python API - Programmatic generation for automation
+3. Command-line - Scriptable CLI for batch processing
+
+Quick Start:
+    >>> from mom6_diagnostics_manager import create_diag_table_ui
+    >>> ui = create_diag_table_ui()  # Uses built-in example data
+
+Documentation: https://github.com/anthonymeza/CESM-diags-generator
 """
 
 from .core import Diagnostic, DiagnosticsParser, DiagTableGenerator

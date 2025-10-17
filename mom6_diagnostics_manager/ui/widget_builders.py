@@ -41,7 +41,7 @@ def create_dropdown(
     value: Optional[str] = None,
     description: str = '',
     width: str = '100%',
-    description_width: str = '70px',
+    description_width: str = '160px',
     disabled: bool = False
 ) -> widgets.Dropdown:
     """Create a styled dropdown widget.
@@ -245,19 +245,22 @@ def create_scrollable_container(
     )
 
 
-def create_hbox_row(*widgets_list, spacing: str = '0') -> widgets.HBox:
+def create_hbox_row(*widgets_list, spacing: str = '0', justify_content: str = 'flex-start') -> widgets.HBox:
     """Create a horizontal box layout.
 
     Args:
         *widgets_list: Widgets to place horizontally
         spacing: Spacing between widgets
+        justify_content: Horizontal alignment ('flex-start', 'center', 'flex-end', 'space-between')
 
     Returns:
         HBox with widgets
     """
     return widgets.HBox(
         list(widgets_list),
-        layout=widgets.Layout(margin=f'0 0 {spacing} 0')
+        layout=widgets.Layout(
+            margin=f'0 0 {spacing} 0'
+        )
     )
 
 
@@ -330,7 +333,8 @@ def create_number_input(
     value: int,
     description: str = '',
     width: str = '48%',
-    disabled: bool = False
+    disabled: bool = False,
+    description_width: str = '160px'
 ) -> widgets.IntText:
     """Create a number input widget.
 
@@ -339,6 +343,7 @@ def create_number_input(
         description: Label text
         width: Widget width
         disabled: Whether widget is disabled
+        description_width: Label width
 
     Returns:
         IntText widget
@@ -347,14 +352,16 @@ def create_number_input(
         value=value,
         description=description,
         disabled=disabled,
-        layout=widgets.Layout(width=width)
+        layout=widgets.Layout(width=width),
+        style={'description_width': description_width}
     )
 
 
 def create_float_input(
     value: float,
     description: str = '',
-    width: str = '48%'
+    width: str = '48%',
+    description_width: str = '160px'
 ) -> widgets.FloatText:
     """Create a float input widget.
 
@@ -362,6 +369,7 @@ def create_float_input(
         value: Initial value
         description: Label text
         width: Widget width
+        description_width: Label width
 
     Returns:
         FloatText widget
@@ -369,5 +377,6 @@ def create_float_input(
     return widgets.FloatText(
         value=value,
         description=description,
-        layout=widgets.Layout(width=width)
+        layout=widgets.Layout(width=width),
+        style={'description_width': description_width}
     )

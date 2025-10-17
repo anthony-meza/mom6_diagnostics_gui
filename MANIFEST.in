@@ -1,11 +1,30 @@
+# Documentation
 include README.md
 include LICENSE
+include CONTRIBUTING.md
+
+# Build files
 include pyproject.toml
 include setup.py
-recursive-include mom6_diagnostics_manager *.py
+include environment.yml
+
+# Package files
+recursive-include mom6_diagnostics_manager *.py *.yml *.yaml
+include mom6_diagnostics_manager/data/*
+
+# Examples
 recursive-include examples *.ipynb *.py
+exclude examples/.ipynb_checkpoints/*
+
+# Tests
 recursive-include tests *.py
+
+# Exclude
 prune __pycache__
 prune .git
 prune .github
+prune .pytest_cache
 global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.cache
+global-exclude .DS_Store

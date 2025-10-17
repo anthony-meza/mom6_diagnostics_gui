@@ -6,7 +6,7 @@ and selection interface.
 
 import ipywidgets as widgets
 from typing import Dict, Callable, Optional, Set, List
-from .widgets import (
+from .widget_builders import (
     create_text_widget, create_dropdown, create_button,
     create_section_header, create_scrollable_container,
     create_pagination_controls

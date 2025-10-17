@@ -89,6 +89,7 @@ options:
 cache:
   enabled: true
   suffix: '.cache'
+  max_files: 6  # Keep only the 6 most recent cache files
 
 # Default file configurations for new projects
 default_files:

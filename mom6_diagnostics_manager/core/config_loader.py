@@ -50,9 +50,9 @@ class Config:
         if not config_file.exists():
             if config_path is not None:
                 raise FileNotFoundError(f"Config file not found: {config_path}")
-            # Fall back to built-in constants
-            from . import constants
-            return self._fallback_config(constants)
+            # Fall back to built-in default values
+            from . import default_values
+            return self._fallback_config(default_values)
 
         try:
             with open(config_file, 'r') as f:

@@ -5,7 +5,7 @@ This module handles the diag_table preview and export functionality.
 
 import ipywidgets as widgets
 from IPython.display import clear_output, display
-from .widgets import (
+from .widget_builders import (
     create_button, create_text_widget, create_section_header,
     create_status_html, create_hbox_row
 )

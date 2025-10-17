@@ -1,8 +1,14 @@
-"""Core functionality for MOM6 diagnostic table generation."""
+"""Core functionality for parsing diagnostics and generating diag_table files.
 
-from .diagnostic import Diagnostic
-from .parser import DiagnosticsParser
-from .generator import DiagTableGenerator
-from . import constants
+Main Classes:
+    Diagnostic - Dataclass for diagnostic field metadata
+    DiagnosticsParser - Parse available_diags files
+    DiagTableGenerator - Generate diag_table configuration files
+"""
 
-__all__ = ['Diagnostic', 'DiagnosticsParser', 'DiagTableGenerator', 'constants']
+from .diagnostic_field import Diagnostic
+from .diagnostics_parser import DiagnosticsParser
+from .diag_table_writer import DiagTableGenerator
+from . import default_values
+
+__all__ = ['Diagnostic', 'DiagnosticsParser', 'DiagTableGenerator', 'default_values']

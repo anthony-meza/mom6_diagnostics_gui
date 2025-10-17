@@ -1,287 +1,101 @@
-<div align="center">
+# MOM6 Diagnostics Manager
 
-# MOM6 Diagnostic Table Generator
-
-[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
-**An interactive tool for creating `diag_table` files from MOM6's `available_diags` output**
-
-*Designed for NCAR scientists and climate modelers*
-
-[Features](#features) • [Installation](#installation) • [Quick Start](#quick-start) • [Documentation](#usage-examples) • [Contributing](#contributing)
-
-</div>
-
----
+A tool for creating MOM6 `diag_table` files. Provides an interactive Jupyter interface, Python API, and command-line tool.
 
 ## Overview
 
-This package provides both a user-friendly Jupyter notebook interface and command-line tools for configuring MOM6 diagnostic outputs. Say goodbye to manually editing `diag_table` files and hello to an intuitive, visual workflow!
+Creating `diag_table` files for MOM6 by hand is tedious. This tool parses the `available_diags` output from MOM6 and lets you select diagnostics interactively or programmatically.
 
 ## Features
 
-- **Interactive Jupyter Interface**: Visual interface for selecting and configuring diagnostics
-- **Built-in Example Data**: Try the tool immediately with included sample diagnostics - no setup required!
-- **Smart Organization**: Diagnostics automatically categorized by type (Temperature, Velocity, Surface Properties, etc.)
-- **Search & Filter**: Quickly find diagnostics by name, category, or dimension (2D/3D)
-- **Multiple Output Files**: Configure different output frequencies (daily, monthly, static, etc.)
-- **Preview & Export**: Preview your diag_table before exporting
-- **Command-Line Tools**: Scriptable CLI for automation and batch processing
+- Interactive Jupyter UI for browsing and selecting diagnostics
+- Filter by category or dimension (2D/3D)
+- Configure multiple output files with different frequencies
+- Python API for scripting
+- Built-in example data for testing
 
 ## Installation
 
-### Using conda (recommended)
-
 ```bash
-# Create a new conda environment
+# Clone the repository
+git clone https://github.com/anthonymeza/CESM-diags-generator.git
+cd CESM-diags-generator
+
+# Install with conda (recommended)
 conda env create -f environment.yml
 conda activate mom6-diagnostics-manager
+pip install -e .
 
-# Install the package
+# Or install with pip
 pip install -e .
 ```
 
-### Using pip
+## Usage
 
-```bash
-# Install from source
-pip install -e .
-
-# Or with optional dependencies
-pip install -e ".[notebook,dev]"
-```
-
-### Building conda package
-
-```bash
-# Build the conda package
-conda build conda-recipe/
-
-# Install the built package
-conda install --use-local mom6-diagnostics-manager
-```
-
-## Quick Start
-
-### Interactive Jupyter Notebook
-
-**Option 1: Try it immediately with example data** (recommended for first-time users)
+### Interactive Interface
 
 ```python
 from mom6_diagnostics_manager import create_diag_table_ui
 
-# Uses built-in example diagnostic file - no setup needed!
+# Use built-in example data
 ui = create_diag_table_ui()
+
+# Or use your own file
+ui = create_diag_table_ui('available_diags.000000')
 ```
-
-**Option 2: Use your own data**
-
-1. Start Jupyter:
-   ```bash
-   jupyter notebook examples/interactive_diag_table.ipynb
-   ```
-
-2. Follow the notebook workflow:
-   - Load your `available_diags` file (or use the built-in example)
-   - Set your CESM case name
-   - Add output files (daily, monthly, static, etc.)
-   - Select diagnostics using checkboxes
-   - Preview and export your `diag_table`
-
-### Command-Line Interface
-
-```bash
-# Generate a diag_table with static fields only
-mom6-diagnostics-manager -i available_diags.000000 -o diag_table --case-name NWA12 --static-only
-
-# List all available diagnostics
-mom6-diagnostics-manager -i available_diags.000000 --list-diagnostics
-
-# List diagnostics by category
-mom6-diagnostics-manager -i available_diags.000000 --list-categories
-```
-
-## Usage Examples
 
 ### Python API
 
 ```python
 from mom6_diagnostics_manager import DiagnosticsParser, DiagTableGenerator
 
-# Parse available_diags file
 parser = DiagnosticsParser('available_diags.000000')
+gen = DiagTableGenerator(title="MOM6 diag table for NWA12", base_year=1900)
 
-# Create generator
-generator = DiagTableGenerator(
-    title="MOM6 diagnostic fields table for CESM case: NWA12",
-    base_year=1900
-)
-
-# Add output files
-generator.add_file('ocean_static', -1, 'days')
-generator.add_file('ocean_daily', 1, 'days', new_file_freq=1, new_file_freq_units='months')
-
-# Add diagnostic fields
-generator.add_field(
-    module_name='ocean_model',
-    field_name='SSH',
-    file_name='ocean_daily',
-    reduction_method='mean'
-)
-
-# Generate and save
-generator.save('diag_table')
+gen.add_file('ocean_daily', 1, 'days')
+gen.add_field('ocean_model', 'SSH', 'ocean_daily', reduction_method='mean')
+gen.save('diag_table')
 ```
 
-### Interactive UI
 
-```python
-from mom6_diagnostics_manager import DiagnosticsParser, DiagTableGenerator, DiagTableUI
 
-# Parse diagnostics
-parser = DiagnosticsParser('available_diags.000000')
-
-# Create generator
-generator = DiagTableGenerator(
-    title="MOM6 diagnostic fields table for CESM case: NWA12"
-)
-
-# Create and display UI
-ui = DiagTableUI(parser, generator)
-ui.create_ui()
-```
-
-## Project Structure
+## Example diag_table Output
 
 ```
-CESM-diags-generator/
-├── mom6_diagnostics_manager/           # Main package
-│   ├── __init__.py
-│   ├── core/                 # Core functionality
-│   │   ├── __init__.py
-│   │   ├── diagnostic.py     # Diagnostic data structures
-│   │   ├── parser.py         # Parser for available_diags
-│   │   └── generator.py      # diag_table generator
-│   ├── ui/                   # User interface
-│   │   ├── __init__.py
-│   │   └── interactive.py    # Jupyter widget interface
-│   └── cli/                  # Command-line interface
-│       ├── __init__.py
-│       └── main.py           # CLI entry point
-├── examples/                 # Example notebooks
-│   └── interactive_diag_table.ipynb
-├── tests/                    # Unit tests
-├── conda-recipe/             # Conda package recipe
-│   ├── meta.yaml
-│   ├── build.sh
-│   └── bld.bat
-├── setup.py                  # Package setup
-├── pyproject.toml            # Modern Python packaging config
-├── environment.yml           # Conda environment
-└── README.md                 # This file
+MOM6 diagnostic fields table for CESM case: NWA12
+1900  1  1  0  0  0
+
+### Section-1: File List
+"ocean_daily", 1, "days", 1, "days", "time"
+"ocean_static", -1, "months", 1, "days", "time"
+
+### Section-2: Fields List
+"ocean_model", "SSH", "SSH", "ocean_daily", "all", "mean", "none", 2
+"ocean_model", "geolon", "geolon", "ocean_static", "all", "none", "none", 2
 ```
 
-## MOM6 diag_table Format
+## Troubleshooting
 
-The `diag_table` file has two main sections:
-
-1. **File Section**: Defines output files and their frequencies
-   ```
-   "ocean_daily", 1, "days", 1, "days", "time", 1, "months"
-   ```
-
-2. **Field Section**: Specifies which diagnostics to output
-   ```
-   "ocean_model", "SSH", "SSH", "ocean_daily", "all", "mean", "none", 2
-   ```
-
-## Diagnostic Categories
-
-The tool organizes diagnostics into categories:
-- **Temperature & Salinity**: Ocean T/S fields
-- **Velocity & Transport**: Current velocities and transports
-- **Surface Properties**: SSH, SST, SSS, mixed layer depth
-- **Mixing & Diffusion**: Mixing coefficients and diffusion
-- **Sea Ice**: Ice-related diagnostics
-- **Tracers**: Passive tracers, age, dyes
-- **Grid & Static**: Grid geometry, bathymetry, masks
-- **Other**: Miscellaneous diagnostics
-
-## Development
-
-### Running Tests
-
+**UI not displaying in Jupyter:**
 ```bash
-pytest tests/
+jupyter nbextension enable --py widgetsnbextension
 ```
 
-### Code Formatting
-
+For JupyterLab:
 ```bash
-black mom6_diagnostics_manager/
-flake8 mom6_diagnostics_manager/
-mypy mom6_diagnostics_manager/
+jupyter labextension install @jupyter-widgets/jupyterlab-manager
 ```
 
-### Building Documentation
+**Slow first load:** Large `available_diags` files are cached after the first load.
 
-```bash
-# TODO: Add sphinx documentation
-```
+## Issues
 
-## Contributing
-
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+Report bugs at: https://github.com/anthonymeza/CESM-diags-generator/issues
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT License
 
-## Citation
+## Author
 
-If you use this tool in your research, please cite:
-
-```
-@software{mom6_diagnostics_manager,
-  author = {Meza, Anthony},
-  title = {MOM6 Diagnostic Table Generator},
-  year = {2025},
-  note = {Tool for NCAR scientists and MOM6 modelers},
-  url = {https://github.com/anthonymeza/CESM-diags-generator}
-}
-```
-
-## Acknowledgments
-
-- MOM6 Development Team
-- CESM Community
-- NOAA/GFDL
-
-## Documentation
-
-- [Configuration Guide](docs/CONFIGURATION.md) - Learn how to customize the tool
-- [Contributing Guide](CONTRIBUTING.md) - Guidelines for contributors
-- [Handoff Document](docs/HANDOFF.md) - Comprehensive technical overview for maintainers
-
-## Support
-
-For issues, questions, or contributions:
-- GitHub Issues: https://github.com/anthonymeza/CESM-diags-generator/issues
-- Email: Anthony Meza (author/maintainer)
-
-## Changelog
-
-### Version 0.1.0 (Initial Release)
-- Interactive Jupyter notebook interface
-- Command-line tools
-- Support for all MOM6 diagnostic types
-- Category-based organization
-- Search and filtering capabilities
-- Preview and export functionality
+Anthony Meza

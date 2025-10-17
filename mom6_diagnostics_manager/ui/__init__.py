@@ -1,24 +1,24 @@
-"""User interface modules for MOM6 diag_tool.
+"""User interface modules for interactive Jupyter notebook interface.
 
-The UI is modularized into the following components:
-- interactive: Main UI orchestrator
-- widgets: Reusable widget builders
-- file_manager: File list and configuration
+The UI components:
+- main_interface: Main UI orchestrator and entry point
+- widget_builders: Reusable widget components
+- output_file_manager: Output file management
 - diagnostic_selector: Diagnostic browsing and selection
-- preview_export: Preview and export functionality
+- table_preview: Preview and export functionality
 """
 
-from .interactive import DiagTableUI, create_diag_table_ui
-from . import widgets
-from . import file_manager
+from .main_interface import DiagTableUI, create_diag_table_ui
+from . import widget_builders
+from . import output_file_manager
 from . import diagnostic_selector
-from . import preview_export
+from . import table_preview
 
 __all__ = [
     'DiagTableUI',
     'create_diag_table_ui',
-    'widgets',
-    'file_manager',
+    'widget_builders',
+    'output_file_manager',
     'diagnostic_selector',
-    'preview_export'
+    'table_preview'
 ]

@@ -8,10 +8,10 @@ from IPython.display import display
 import time
 import os
 
-from .file_manager import FileManagerUI, FileConfigUI
+from .output_file_manager import FileManagerUI, FileConfigUI
 from .diagnostic_selector import DiagnosticSelectorUI
-from .preview_export import PreviewExportUI
-from .widgets import create_text_widget, create_help_text
+from .table_preview import PreviewExportUI
+from .widget_builders import create_text_widget, create_help_text
 
 
 class DiagTableUI:
@@ -67,7 +67,10 @@ class DiagTableUI:
         # Help text
         help_html = create_help_text(
             "<b>Quick Start:</b> 1) Set case name 2) Click a file to select it "
-            "3) Choose diagnostics 4) Preview and save"
+            "3) Choose diagnostics 4) Preview and save<br>"
+            "See <a href='https://mom6.readthedocs.io/en/main/api/generated/pages/Diagnostics.html' "
+            "target='_blank'>https://mom6.readthedocs.io/en/main/api/generated/pages/Diagnostics.html</a> "
+            "for more info on diagnostics setup"
         )
 
         # Initialize UI components
@@ -168,11 +171,11 @@ class DiagTableUI:
     def _create_config_tab(self) -> widgets.VBox:
         """Create the configuration and selection tab."""
         return widgets.VBox([
-            widgets.HTML("<h4 style='color: #495057; margin: 10px 0;'>File Configuration</h4>"),
+            widgets.HTML("<h4 style='color: #495057; margin: 0 0 10px 0;'>File Configuration</h4>"),
             self.file_config_area,
             widgets.HTML("<h4 style='color: #495057; margin: 15px 0 10px 0;'>Select Diagnostics</h4>"),
             self.diag_area
-        ], layout=widgets.Layout(padding='15px'))
+        ], layout=widgets.Layout(padding='10px'))
 
     def show_file_config(self, file_name: str):
         """Show configuration for selected file.
@@ -231,10 +234,6 @@ class DiagTableUI:
         return self.parser.clear_cache()
 
 
-# Global UI instance for singleton pattern
-_ui_instance = None
-
-
 def create_diag_table_ui(diag_file=None):
     """Create and display interactive UI for diag_table generation.
 
@@ -245,12 +244,6 @@ def create_diag_table_ui(diag_file=None):
     Returns:
         DiagTableUI instance
     """
-    global _ui_instance
-
-    if _ui_instance is not None:
-        print("UI already exists. Restart kernel to reload.")
-        return _ui_instance
-
     try:
         from ..core import DiagnosticsParser, DiagTableGenerator
         from pathlib import Path
@@ -318,13 +311,6 @@ def create_diag_table_ui(diag_file=None):
         # Close the progress bar
         loading_box.close()
 
-        # Automatically clean up cache file after loading
-        try:
-            parser.clear_cache()
-        except:
-            pass  # Silently ignore any cache cleanup errors
-
-        _ui_instance = ui
         return ui
 
     except FileNotFoundError:

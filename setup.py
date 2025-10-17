@@ -49,11 +49,6 @@ setup(
             'notebook>=6.0.0',
         ],
     },
-    entry_points={
-        'console_scripts': [
-            'mom6-diagnostics-manager=mom6_diagnostics_manager.cli.main:main',
-        ],
-    },
     include_package_data=True,
     keywords='MOM6 oceanography climate modeling CESM diagnostics',
     project_urls={

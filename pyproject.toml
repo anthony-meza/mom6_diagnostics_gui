@@ -45,9 +45,6 @@ notebook = [
     "notebook>=6.0.0",
 ]
 
-[project.scripts]
-mom6-diagnostics-manager = "mom6_diagnostics_manager.cli.main:main"
-
 [project.urls]
 Homepage = "https://github.com/anthonymeza/CESM-diags-generator"
 "Bug Reports" = "https://github.com/anthonymeza/CESM-diags-generator/issues"
