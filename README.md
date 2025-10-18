@@ -1,5 +1,7 @@
 # MOM6 Diagnostics Manager
 
+<img width="949" height="629" alt="Screenshot 2025-10-18 at 3 26 10 PM" src="https://github.com/user-attachments/assets/96728a78-32e8-46d7-bbe2-3fb968e4c748" />
+
 A tool for creating MOM6 `diag_table` files. Provides an interactive Jupyter interface, Python API, and command-line tool.
 
 ## Overview
