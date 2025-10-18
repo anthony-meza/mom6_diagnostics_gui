@@ -1,12 +1,13 @@
 # MOM6 Diagnostics Manager
 
+A tool for creating MOM6 `diag_table` using an interactive Jupyter interface
+
 <img width="949" height="629" alt="Screenshot 2025-10-18 at 3 26 10 PM" src="https://github.com/user-attachments/assets/96728a78-32e8-46d7-bbe2-3fb968e4c748" />
 
-A tool for creating MOM6 `diag_table` files. Provides an interactive Jupyter interface, Python API, and command-line tool.
 
 ## Overview
 
-Creating `diag_table` files for MOM6 by hand is tedious. This tool parses the `available_diags` output from MOM6 and lets you select diagnostics interactively or programmatically.
+Creating `diag_table` files for MOM6 by hand can be tedious. This tool parses the `available_diags` output from MOM6 and lets you select diagnostics interactively.
 
 ## Installation
 
@@ -27,6 +28,7 @@ pip install -e .
 ## Usage
 
 ### Interactive Interface
+Try the notebook in `examples/`!
 
 ```python
 from mom6_diagnostics_manager import create_diag_table_ui
@@ -38,21 +40,6 @@ ui = create_diag_table_ui()
 ui = create_diag_table_ui('available_diags.000000')
 ```
 
-
-## Example diag_table Output
-
-```
-MOM6 diagnostic fields table for CESM case: NWA12
-1900  1  1  0  0  0
-
-### Section-1: File List
-"ocean_daily", 1, "days", 1, "days", "time"
-"ocean_static", -1, "months", 1, "days", "time"
-
-### Section-2: Fields List
-"ocean_model", "SSH", "SSH", "ocean_daily", "all", "mean", "none", 2
-"ocean_model", "geolon", "geolon", "ocean_static", "all", "none", "none", 2
-```
 
 ## License
 
