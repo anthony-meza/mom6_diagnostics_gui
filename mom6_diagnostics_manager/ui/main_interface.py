@@ -44,7 +44,7 @@ class DiagTableUI:
         self.diag_area = None
         self.main_container = None
 
-    def create_ui(self):
+    def create_ui(self, default_save_location='../data/diag_table'):
         """Create and return the main UI.
 
         Returns:
@@ -83,7 +83,8 @@ class DiagTableUI:
 
         self.preview_export = PreviewExportUI(
             self.generator,
-            on_export=self._on_export_change
+            on_export=self._on_export_change,
+            default_save_location = default_save_location
         )
 
         # File configuration and diagnostics area
@@ -234,7 +235,7 @@ class DiagTableUI:
         return self.parser.clear_cache()
 
 
-def create_diag_table_ui(diag_file=None):
+def create_diag_table_ui(diag_file=None, case_name="YOUR_CASE_NAME", output_diag_default='../data/diag_table'):
     """Create and display interactive UI for diag_table generation.
 
     Args:
@@ -286,7 +287,7 @@ def create_diag_table_ui(diag_file=None):
 
         # Create generator with default setup
         generator = DiagTableGenerator(
-            title="MOM6 diagnostic fields table for CESM case: YOUR_CASE_NAME",
+            title=f"MOM6 diagnostic fields table for CESM case: {case_name}",
             base_year=1900
         )
 
@@ -299,7 +300,7 @@ def create_diag_table_ui(diag_file=None):
         # Create UI
         ui_start = time.time()
         ui = DiagTableUI(parser, generator)
-        ui_widget = ui.create_ui()
+        ui_widget = ui.create_ui(default_save_location = output_diag_default )
         ui_time = time.time() - ui_start
 
         progress.value = 100

@@ -9,12 +9,12 @@ from .widget_builders import (
     create_button, create_text_widget, create_section_header,
     create_status_html, create_hbox_row
 )
-
+from pathlib import Path
 
 class PreviewExportUI:
     """Manages the preview and export interface."""
 
-    def __init__(self, generator, on_export: callable = None):
+    def __init__(self, generator, on_export: callable = None, default_save_location = '../data/diag_table'):
         """Initialize preview/export UI.
 
         Args:
@@ -30,14 +30,12 @@ class PreviewExportUI:
         self.export_label = create_section_header('Export', '(0 file(s), 0 diagnostic(s))')
 
         # Create data directory if it doesn't exist (in parent directory)
-        import os
-        from pathlib import Path
-        data_dir = Path('../data')
+        data_dir = Path(default_save_location).parent
         if not data_dir.exists():
             data_dir.mkdir(parents=True, exist_ok=True)
 
         self.output_path_widget = create_text_widget(
-            value='../data/diag_table',
+            value=default_save_location,
             placeholder='Path to save diag_table',
             description='Save to:'
         )
