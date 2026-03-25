@@ -235,12 +235,17 @@ class DiagTableUI:
         return self.parser.clear_cache()
 
 
-def create_diag_table_ui(diag_file=None, case_name="YOUR_CASE_NAME", output_diag_default='../data/diag_table'):
+def create_diag_table_ui(diag_file=None, case_name="YOUR_CASE_NAME", output_diag_default='../data/diag_table',
+                         input_diag_table=None):
     """Create and display interactive UI for diag_table generation.
 
     Args:
         diag_file: Path to available_diags file. If None, uses the example
                    diagnostic file included with the package.
+        case_name: CESM case name for the diag_table title (ignored if input_diag_table is provided).
+        output_diag_default: Default save location for the output diag_table.
+        input_diag_table: Path to an existing diag_table file to use as the starting point.
+                          If None, a default set of files is used.
 
     Returns:
         DiagTableUI instance
@@ -285,14 +290,16 @@ def create_diag_table_ui(diag_file=None, case_name="YOUR_CASE_NAME", output_diag
         progress.value = 60
         status_label.value = f'Loaded {total} diagnostics in {parse_time:.3f}s{cache_status}'
 
-        # Create generator with default setup
-        generator = DiagTableGenerator(
-            title=f"MOM6 diagnostic fields table for CESM case: {case_name}",
-            base_year=1900
-        )
-
-        # Add default files
-        _add_default_files(generator)
+        # Create generator from existing diag_table or with defaults
+        if input_diag_table is not None:
+            generator = DiagTableGenerator.from_file(input_diag_table)
+            print(f"Loaded diag_table from: {input_diag_table}")
+        else:
+            generator = DiagTableGenerator(
+                title=f"MOM6 diagnostic fields table for CESM case: {case_name}",
+                base_year=1900
+            )
+            _add_default_files(generator)
 
         progress.value = 80
         status_label.value = 'Creating UI...'
@@ -300,7 +307,7 @@ def create_diag_table_ui(diag_file=None, case_name="YOUR_CASE_NAME", output_diag
         # Create UI
         ui_start = time.time()
         ui = DiagTableUI(parser, generator)
-        ui_widget = ui.create_ui(default_save_location = output_diag_default )
+        ui_widget = ui.create_ui(default_save_location=output_diag_default)
         ui_time = time.time() - ui_start
 
         progress.value = 100
@@ -330,30 +337,19 @@ def _add_default_files(generator):
     Args:
         generator: DiagTableGenerator instance
     """
-    # Static file
-    generator.add_file('ocean_static', -1, 'months')
-    generator.add_field('ocean_model', 'deptho', 'ocean_static', 'deptho', 'all', 'none', 'none', 2)
-    generator.add_field('ocean_model', 'geolon', 'ocean_static', 'geolon', 'all', 'none', 'none', 2)
-    generator.add_field('ocean_model', 'geolat', 'ocean_static', 'geolat', 'all', 'none', 'none', 2)
-    generator.add_field('ocean_model', 'wet', 'ocean_static', 'wet', 'all', 'none', 'none', 2)
+    from ..core.default_values import DEFAULT_FILE_CONFIGS
 
-    # High-frequency file
-    generator.add_file('surf_%4yr_%3dy', 1, 'hours', new_file_freq=1, new_file_freq_units='months')
-    generator.add_field('ocean_model', 'SSH', 'surf_%4yr_%3dy', 'SSH', 'all', 'none', 'none', 2)
-
-    # Daily averages
-    generator.add_file('ocean_daily', 1, 'days')
-    generator.add_field('ocean_model', 'tos', 'ocean_daily', 'tos', 'all', 'mean', 'none', 2)
-
-    # Monthly averages
-    generator.add_file('ocean_month', 1, 'months')
-    generator.add_field('ocean_model', 'thetao', 'ocean_month', 'thetao', 'all', 'mean', 'none', 2)
-
-    # Annual averages
-    generator.add_file('ocean_annual', 12, 'months')
-    generator.add_field('ocean_model', 'thetao', 'ocean_annual', 'thetao', 'all', 'mean', 'none', 2)
-
-    # Vertical section
-    generator.add_file('ocean_Bering_Strait', 5, 'days')
-    generator.add_field('ocean_model', 'thetao', 'ocean_Bering_Strait', 'thetao', 'all', 'mean',
-                       '-171.4 -168.7 66.1 66.1 -1 -1', 2)
+    for file_cfg in DEFAULT_FILE_CONFIGS:
+        generator.add_file(
+            file_cfg['name'], file_cfg['freq'], file_cfg['units'],
+            new_file_freq=file_cfg.get('new_file_freq'),
+            new_file_freq_units=file_cfg.get('new_file_freq_units'),
+        )
+        for field in file_cfg['fields']:
+            generator.add_field(
+                module_name=field['module'],
+                field_name=field['name'],
+                file_name=file_cfg['name'],
+                reduction_method=field['reduction'],
+                regional_section=field.get('regional', 'none'),
+            )

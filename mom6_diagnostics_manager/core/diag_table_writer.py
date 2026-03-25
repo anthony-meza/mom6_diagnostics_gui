@@ -1,5 +1,6 @@
 """Generator for MOM6 diag_table files."""
 
+import csv
 from pathlib import Path
 from typing import List, Dict, Optional
 from . import default_values
@@ -269,6 +270,63 @@ class DiagTableGenerator:
             lines.append('')
 
         return '\n'.join(lines)
+
+    @classmethod
+    def from_file(cls, filepath: str) -> 'DiagTableGenerator':
+        """Load a DiagTableGenerator from an existing diag_table file.
+
+        Args:
+            filepath: Path to an existing diag_table file
+
+        Returns:
+            DiagTableGenerator populated with the file's contents
+        """
+        lines = Path(filepath).read_text().splitlines()
+
+        title = lines[0].strip()
+        date_parts = lines[1].strip().split()
+        base_year, base_month, base_day = int(date_parts[0]), int(date_parts[1]), int(date_parts[2])
+
+        generator = cls(title=title, base_year=base_year, base_month=base_month, base_day=base_day)
+
+        in_files = False
+        in_fields = False
+
+        for line in lines[2:]:
+            stripped = line.strip()
+            if not stripped or stripped.startswith('#'):
+                if 'Section-1' in stripped:
+                    in_files, in_fields = True, False
+                elif 'Section-2' in stripped:
+                    in_files, in_fields = False, True
+                continue
+
+            row = [r.strip() for r in next(csv.reader([stripped]))]
+
+            if in_files:
+                generator.add_file(
+                    file_name=row[0],
+                    output_freq=int(row[1]),
+                    output_freq_units=row[2],
+                    file_format=int(row[3]),
+                    time_axis_units=row[4],
+                    time_axis_name=row[5],
+                    new_file_freq=int(row[6]) if len(row) > 6 else None,
+                    new_file_freq_units=row[7] if len(row) > 7 else None,
+                )
+            elif in_fields:
+                generator.add_field(
+                    module_name=row[0],
+                    field_name=row[1],
+                    file_name=row[3],
+                    output_name=row[2],
+                    time_sampling=row[4],
+                    reduction_method=row[5],
+                    regional_section=row[6],
+                    packing=int(row[7]),
+                )
+
+        return generator
 
     def save(self, filepath: str) -> str:
         """Save diag_table to file.
