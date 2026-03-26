@@ -302,7 +302,7 @@ def create_diag_table_ui(
         # Create UI
         ui_start = time.time()
         ui = DiagTableUI(parser, generator)
-        ui_widget = ui.create_ui(default_save_location=output_diag_default)
+        ui_widget = ui.create_ui(default_save_location=str(output_diag_default))
         ui_time = time.time() - ui_start
 
         progress.value = 100
