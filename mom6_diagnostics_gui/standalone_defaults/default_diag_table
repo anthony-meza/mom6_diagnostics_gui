@@ -1,0 +1,33 @@
+MOM6 diagnostic fields table for CESM case: YOUR_CASE_NAME
+1900  1  1  0  0  0
+### Section-1: File List
+#========================
+"ocean_static", -1, "months", 1, "days", "time"
+"surf_%4yr_%3dy", 1, "hours", 1, "days", "time", 1, "months"
+"ocean_daily", 1, "days", 1, "days", "time"
+"ocean_month", 1, "months", 1, "days", "time"
+"ocean_annual", 12, "months", 1, "days", "time"
+"ocean_Bering_Strait", 5, "days", 1, "days", "time"
+
+### Section-2: Fields List
+#=========================
+# "ocean_static"
+"ocean_model", "deptho", "deptho", "ocean_static", "all", "none", "none", 2
+"ocean_model", "geolon", "geolon", "ocean_static", "all", "none", "none", 2
+"ocean_model", "geolat", "geolat", "ocean_static", "all", "none", "none", 2
+"ocean_model", "wet", "wet", "ocean_static", "all", "none", "none", 2
+
+# "surf_%4yr_%3dy"
+"ocean_model", "SSH", "SSH", "surf_%4yr_%3dy", "all", "none", "none", 2
+
+# "ocean_daily"
+"ocean_model", "tos", "tos", "ocean_daily", "all", "mean", "none", 2
+
+# "ocean_month"
+"ocean_model", "thetao", "thetao", "ocean_month", "all", "mean", "none", 2
+
+# "ocean_annual"
+"ocean_model", "thetao", "thetao", "ocean_annual", "all", "mean", "none", 2
+
+# "ocean_Bering_Strait"
+"ocean_model", "thetao", "thetao", "ocean_Bering_Strait", "all", "mean", "-171.4 -168.7 66.1 66.1 -1 -1", 2

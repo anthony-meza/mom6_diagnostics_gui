@@ -15,10 +15,10 @@ from . import diagnostic_selector
 from . import table_preview
 
 __all__ = [
-    'DiagTableUI',
-    'create_diag_table_ui',
-    'widget_builders',
-    'output_file_manager',
-    'diagnostic_selector',
-    'table_preview'
+    "DiagTableUI",
+    "create_diag_table_ui",
+    "widget_builders",
+    "output_file_manager",
+    "diagnostic_selector",
+    "table_preview",
 ]

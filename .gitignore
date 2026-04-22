@@ -89,10 +89,10 @@ data/*
 !data/README.md
 
 # Package data files (except README and example file)
-mom6_diagnostics_manager/data/*
-!mom6_diagnostics_manager/data/README.md
-!mom6_diagnostics_manager/data/.gitkeep
-!mom6_diagnostics_manager/data/available_diags.000000
+mom6_diagnostics_gui/data/*
+!mom6_diagnostics_gui/data/README.md
+!mom6_diagnostics_gui/data/.gitkeep
+!mom6_diagnostics_gui/data/available_diags.000000
 
 # Conda
 *.tar.bz2

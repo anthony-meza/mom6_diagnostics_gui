@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mom6-diagnostics-gui"
 version = "0.1.0"
-description = "Interactive diagnostic GUI for the MOM6 ocean model to create and manage diag_table files"
+description = "Interactive diagnostic gui for MOM6 ocean model - create and manage diag_table files"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
@@ -46,10 +46,10 @@ notebook = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/anthonymeza/mom6_diagnostics_gui"
-"Bug Reports" = "https://github.com/anthonymeza/mom6_diagnostics_gui/issues"
-"Source" = "https://github.com/anthonymeza/mom6_diagnostics_gui"
-Documentation = "https://github.com/anthonymeza/mom6_diagnostics_gui#readme"
+Homepage = "https://github.com/anthonymeza/CESM-diags-generator"
+"Bug Reports" = "https://github.com/anthonymeza/CESM-diags-generator/issues"
+"Source" = "https://github.com/anthonymeza/CESM-diags-generator"
+Documentation = "https://github.com/anthonymeza/CESM-diags-generator#readme"
 
 [tool.black]
 line-length = 100

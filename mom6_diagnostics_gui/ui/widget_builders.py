@@ -9,11 +9,11 @@ from typing import List, Tuple, Optional, Callable
 
 
 def create_text_widget(
-    value: str = '',
-    placeholder: str = '',
-    description: str = '',
-    width: str = '100%',
-    description_width: str = '100px'
+    value: str = "",
+    placeholder: str = "",
+    description: str = "",
+    width: str = "100%",
+    description_width: str = "100px",
 ) -> widgets.Text:
     """Create a styled text input widget.
 
@@ -32,17 +32,17 @@ def create_text_widget(
         placeholder=placeholder,
         description=description,
         layout=widgets.Layout(width=width),
-        style={'description_width': description_width}
+        style={"description_width": description_width},
     )
 
 
 def create_dropdown(
     options: List,
     value: Optional[str] = None,
-    description: str = '',
-    width: str = '100%',
-    description_width: str = '160px',
-    disabled: bool = False
+    description: str = "",
+    width: str = "100%",
+    description_width: str = "160px",
+    disabled: bool = False,
 ) -> widgets.Dropdown:
     """Create a styled dropdown widget.
 
@@ -58,25 +58,25 @@ def create_dropdown(
         Configured Dropdown widget
     """
     kwargs = {
-        'options': options,
-        'description': description,
-        'layout': widgets.Layout(width=width),
-        'style': {'description_width': description_width},
-        'disabled': disabled
+        "options": options,
+        "description": description,
+        "layout": widgets.Layout(width=width),
+        "style": {"description_width": description_width},
+        "disabled": disabled,
     }
     if value is not None:
-        kwargs['value'] = value
+        kwargs["value"] = value
 
     return widgets.Dropdown(**kwargs)
 
 
 def create_button(
     description: str,
-    button_style: str = '',
-    icon: str = '',
-    width: str = '100%',
+    button_style: str = "",
+    icon: str = "",
+    width: str = "100%",
     on_click: Optional[Callable] = None,
-    disabled: bool = False
+    disabled: bool = False,
 ) -> widgets.Button:
     """Create a styled button widget.
 
@@ -96,7 +96,7 @@ def create_button(
         button_style=button_style,
         icon=icon,
         layout=widgets.Layout(width=width),
-        disabled=disabled
+        disabled=disabled,
     )
 
     if on_click:
@@ -106,10 +106,7 @@ def create_button(
 
 
 def create_html_label(
-    text: str,
-    color: str = '#495057',
-    size: str = 'inherit',
-    bold: bool = False
+    text: str, color: str = "#495057", size: str = "inherit", bold: bool = False
 ) -> widgets.HTML:
     """Create a styled HTML label.
 
@@ -122,16 +119,13 @@ def create_html_label(
     Returns:
         HTML widget with styled text
     """
-    weight = 'bold' if bold else 'normal'
+    weight = "bold" if bold else "normal"
     return widgets.HTML(
         f"<span style='color: {color}; font-size: {size}; font-weight: {weight};'>{text}</span>"
     )
 
 
-def create_status_html(
-    message: str,
-    status: str = 'success'
-) -> widgets.HTML:
+def create_status_html(message: str, status: str = "success") -> widgets.HTML:
     """Create a status message widget.
 
     Args:
@@ -142,31 +136,21 @@ def create_status_html(
         HTML widget with colored status message
     """
     colors = {
-        'success': '#28a745',
-        'error': '#dc3545',
-        'info': '#007bff',
-        'warning': '#ffc107'
+        "success": "#28a745",
+        "error": "#dc3545",
+        "info": "#007bff",
+        "warning": "#ffc107",
     }
 
-    icons = {
-        'success': '✓',
-        'error': '✗',
-        'info': 'ℹ',
-        'warning': '⚠'
-    }
+    icons = {"success": "✓", "error": "✗", "info": "ℹ", "warning": "⚠"}
 
-    color = colors.get(status, colors['info'])
-    icon = icons.get(status, '')
+    color = colors.get(status, colors["info"])
+    icon = icons.get(status, "")
 
-    return widgets.HTML(
-        f"<span style='color: {color};'>{icon} {message}</span>"
-    )
+    return widgets.HTML(f"<span style='color: {color};'>{icon} {message}</span>")
 
 
-def create_section_header(
-    text: str,
-    subtitle: str = ''
-) -> widgets.HTML:
+def create_section_header(text: str, subtitle: str = "") -> widgets.HTML:
     """Create a section header with optional subtitle.
 
     Args:
@@ -176,10 +160,12 @@ def create_section_header(
     Returns:
         HTML widget with formatted header
     """
-    subtitle_html = f" <span style='color: #6c757d; font-size: 0.9em;'>{subtitle}</span>" if subtitle else ""
-    return widgets.HTML(
-        f"<b style='color: #495057;'>{text}</b>{subtitle_html}"
+    subtitle_html = (
+        f" <span style='color: #6c757d; font-size: 0.9em;'>{subtitle}</span>"
+        if subtitle
+        else ""
     )
+    return widgets.HTML(f"<b style='color: #495057;'>{text}</b>{subtitle_html}")
 
 
 def create_help_text(text: str) -> widgets.HTML:
@@ -198,9 +184,7 @@ def create_help_text(text: str) -> widgets.HTML:
 
 
 def create_accordion(
-    title: str,
-    content: widgets.Widget,
-    selected_index: Optional[int] = None
+    title: str, content: widgets.Widget, selected_index: Optional[int] = None
 ) -> widgets.Accordion:
     """Create an accordion widget.
 
@@ -220,8 +204,7 @@ def create_accordion(
 
 
 def create_scrollable_container(
-    children: List[widgets.Widget],
-    max_height: str = '400px'
+    children: List[widgets.Widget], max_height: str = "400px"
 ) -> widgets.VBox:
     """Create a scrollable container.
 
@@ -236,16 +219,18 @@ def create_scrollable_container(
         children,
         layout=widgets.Layout(
             max_height=max_height,
-            overflow_y='auto',
-            border='1px solid #dee2e6',
-            border_radius='4px',
-            padding='10px',
-            background_color='#fafafa'
-        )
+            overflow_y="auto",
+            border="1px solid #dee2e6",
+            border_radius="4px",
+            padding="10px",
+            background_color="#fafafa",
+        ),
     )
 
 
-def create_hbox_row(*widgets_list, spacing: str = '0', justify_content: str = 'flex-start') -> widgets.HBox:
+def create_hbox_row(
+    *widgets_list, spacing: str = "0", justify_content: str = "flex-start"
+) -> widgets.HBox:
     """Create a horizontal box layout.
 
     Args:
@@ -257,14 +242,11 @@ def create_hbox_row(*widgets_list, spacing: str = '0', justify_content: str = 'f
         HBox with widgets
     """
     return widgets.HBox(
-        list(widgets_list),
-        layout=widgets.Layout(
-            margin=f'0 0 {spacing} 0'
-        )
+        list(widgets_list), layout=widgets.Layout(margin=f"0 0 {spacing} 0")
     )
 
 
-def create_vbox_column(*widgets_list, spacing: str = '0') -> widgets.VBox:
+def create_vbox_column(*widgets_list, spacing: str = "0") -> widgets.VBox:
     """Create a vertical box layout.
 
     Args:
@@ -275,8 +257,7 @@ def create_vbox_column(*widgets_list, spacing: str = '0') -> widgets.VBox:
         VBox with widgets
     """
     return widgets.VBox(
-        list(widgets_list),
-        layout=widgets.Layout(margin=f'0 0 {spacing} 0')
+        list(widgets_list), layout=widgets.Layout(margin=f"0 0 {spacing} 0")
     )
 
 
@@ -287,7 +268,7 @@ def create_pagination_controls(
     on_next: Callable,
     item_start: int,
     item_end: int,
-    total_items: int
+    total_items: int,
 ) -> Tuple[widgets.HTML, widgets.HBox]:
     """Create pagination controls with page info.
 
@@ -311,17 +292,14 @@ def create_pagination_controls(
     )
 
     prev_btn = create_button(
-        '← Previous',
-        disabled=(current_page == 0),
-        width='48%',
-        on_click=on_prev
+        "← Previous", disabled=(current_page == 0), width="48%", on_click=on_prev
     )
 
     next_btn = create_button(
-        'Next →',
+        "Next →",
         disabled=(current_page >= total_pages - 1),
-        width='48%',
-        on_click=on_next
+        width="48%",
+        on_click=on_next,
     )
 
     pagination = widgets.HBox([prev_btn, next_btn])
@@ -331,10 +309,10 @@ def create_pagination_controls(
 
 def create_number_input(
     value: int,
-    description: str = '',
-    width: str = '48%',
+    description: str = "",
+    width: str = "48%",
     disabled: bool = False,
-    description_width: str = '160px'
+    description_width: str = "160px",
 ) -> widgets.IntText:
     """Create a number input widget.
 
@@ -353,15 +331,15 @@ def create_number_input(
         description=description,
         disabled=disabled,
         layout=widgets.Layout(width=width),
-        style={'description_width': description_width}
+        style={"description_width": description_width},
     )
 
 
 def create_float_input(
     value: float,
-    description: str = '',
-    width: str = '48%',
-    description_width: str = '160px'
+    description: str = "",
+    width: str = "48%",
+    description_width: str = "160px",
 ) -> widgets.FloatText:
     """Create a float input widget.
 
@@ -378,5 +356,5 @@ def create_float_input(
         value=value,
         description=description,
         layout=widgets.Layout(width=width),
-        style={'description_width': description_width}
+        style={"description_width": description_width},
     )

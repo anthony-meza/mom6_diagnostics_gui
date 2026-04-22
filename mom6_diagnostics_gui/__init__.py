@@ -9,18 +9,18 @@ Quick Start:
     >>> from mom6_diagnostics_gui import create_diag_table_ui
     >>> ui = create_diag_table_ui()  # Uses built-in example data
 
-Documentation: https://github.com/anthonymeza/mom6_diagnostics_gui
+Documentation: https://github.com/anthonymeza/CESM-diags-generator
 """
 
-from .core import Diagnostic, DiagnosticsParser, DiagTableGenerator
+from .core import Diagnostic, AvailableDiagsParser, DiagTableGenerator
 from .ui import DiagTableUI, create_diag_table_ui
 
-__version__ = '0.1.0'
-__author__ = 'Anthony Meza'
+__version__ = "0.1.0"
+__author__ = "Anthony Meza"
 __all__ = [
-    'Diagnostic',
-    'DiagnosticsParser',
-    'DiagTableGenerator',
-    'DiagTableUI',
-    'create_diag_table_ui'
+    "Diagnostic",
+    "DiagnosticsParser",
+    "DiagTableGenerator",
+    "DiagTableUI",
+    "create_diag_table_ui",
 ]

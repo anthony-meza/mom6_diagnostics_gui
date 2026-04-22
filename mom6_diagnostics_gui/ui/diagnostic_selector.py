@@ -7,9 +7,12 @@ and selection interface.
 import ipywidgets as widgets
 from typing import Dict, Callable, Optional, Set, List
 from .widget_builders import (
-    create_text_widget, create_dropdown, create_button,
-    create_section_header, create_scrollable_container,
-    create_pagination_controls
+    create_text_widget,
+    create_dropdown,
+    create_button,
+    create_section_header,
+    create_scrollable_container,
+    create_pagination_controls,
 )
 
 
@@ -22,7 +25,7 @@ class DiagnosticSelectorUI:
         generator,
         file_name: str,
         file_config_widgets: Dict,
-        on_selection_change: Optional[Callable] = None
+        on_selection_change: Optional[Callable] = None,
     ):
         """Initialize diagnostic selector.
 
@@ -53,21 +56,70 @@ class DiagnosticSelectorUI:
         self.search_widget = self._create_search_widget()
         self.category_widget = self._create_category_widget()
         self.diag_container = create_scrollable_container([])
-        self.header = create_section_header('Diagnostics', '(Selected: 0)')
+        self.header = create_section_header("Diagnostics", "(Selected: 0)")
+        self.manual_field_widget = self._create_manual_field_widget()
 
         # Initialize
+        self._update_selection_cache()
+        self.update_diagnostics_list()
+
+    def _create_manual_field_widget(self) -> widgets.HBox:
+        """Create manual field name entry widget."""
+        self._manual_field_name = create_text_widget(
+            placeholder="e.g., thetao",
+            description="Field:",
+            width="200px",
+            description_width="45px",
+        )
+        self._manual_module_name = create_text_widget(
+            value="ocean_model",
+            description="Module:",
+            width="200px",
+            description_width="55px",
+        )
+        add_btn = create_button(
+            "Add",
+            button_style="primary",
+            icon="plus",
+            width="80px",
+            on_click=self._add_manual_field,
+        )
+        return widgets.HBox(
+            [self._manual_field_name, self._manual_module_name, add_btn],
+            layout=widgets.Layout(margin="5px 0"),
+        )
+
+    def _add_manual_field(self, button):
+        """Add a field manually by name."""
+        field_name = self._manual_field_name.value.strip()
+        module_name = self._manual_module_name.value.strip() or "ocean_model"
+        if not field_name:
+            return
+        regional_val = self._get_regional_value()
+        self.generator.add_field(
+            module_name=module_name,
+            field_name=field_name,
+            file_name=self.file_name,
+            reduction_method=self.file_config_widgets["reduction"].value,
+            time_sampling="all",
+            regional_section=regional_val,
+            packing=self.file_config_widgets["packing"].value,
+        )
+        self._manual_field_name.value = ""
         self._update_selection_cache()
         self.update_diagnostics_list()
 
     def _create_search_widget(self) -> widgets.Text:
         """Create search text widget."""
         widget = create_text_widget(
-            placeholder='e.g., tos, thetao, SST...',
-            description='Search:',
-            width='300px',
-            description_width='60px'
+            placeholder="e.g., tos, thetao, SST...",
+            description="Search:",
+            width="300px",
+            description_width="60px",
         )
-        widget.observe(lambda change: self.update_diagnostics_list(reset_page=True), names='value')
+        widget.observe(
+            lambda change: self.update_diagnostics_list(reset_page=True), names="value"
+        )
         return widget
 
     def _get_categories(self) -> Dict:
@@ -84,30 +136,33 @@ class DiagnosticSelectorUI:
         """Create category dropdown with dynamic categories."""
         # Get actual categories from parser (cached)
         categories = self._get_categories()
-        category_names = ['All Diagnostics'] + list(categories.keys())
+        category_names = ["All Diagnostics"] + list(categories.keys())
 
         # Set default value
-        if 'static' in self.file_name.lower() and 'Grid & Static' in category_names:
-            default_value = 'Grid & Static'
+        if "static" in self.file_name.lower() and "Grid & Static" in category_names:
+            default_value = "Grid & Static"
         else:
-            default_value = 'All Diagnostics'
+            default_value = "All Diagnostics"
 
         widget = create_dropdown(
             options=category_names,
             value=default_value,
-            description='Category:',
-            width='250px',
-            description_width='70px'
+            description="Category:",
+            width="250px",
+            description_width="70px",
         )
-        widget.observe(lambda change: self.update_diagnostics_list(reset_page=True), names='value')
+        widget.observe(
+            lambda change: self.update_diagnostics_list(reset_page=True), names="value"
+        )
         return widget
 
     def _update_selection_cache(self):
         """Update cache of selected fields."""
         self.selected_cache.clear()
         selected_field_names = {
-            f['field_name'] for f in self.generator.fields
-            if f['file_name'] == self.file_name
+            f["field_name"]
+            for f in self.generator.fields
+            if f["file_name"] == self.file_name
         }
 
         for diag in self.parser.diagnostics.values():
@@ -133,6 +188,7 @@ class DiagnosticSelectorUI:
 
         # Apply search filter
         if search_term:
+
             def matches_search(d):
                 if search_term in d.name.lower() or search_term in d.long_name.lower():
                     return True
@@ -145,7 +201,7 @@ class DiagnosticSelectorUI:
             diags = [d for d in diags if matches_search(d)]
 
         # Apply category filter (dynamic - works with any category)
-        if category != 'All Diagnostics':
+        if category != "All Diagnostics":
             cat_diags = self._get_categories().get(category, [])
             diags = [d for d in diags if d in cat_diags]
 
@@ -186,26 +242,27 @@ class DiagnosticSelectorUI:
                 value=is_checked,
                 description=diag.display_name(),
                 indent=False,
-                layout=widgets.Layout(width='100%'),
-                style={'description_width': 'initial'}
+                layout=widgets.Layout(width="100%"),
+                style={"description_width": "initial"},
             )
 
             self.checkboxes_dict[diag.name] = cb
 
             def make_on_change(diag_obj):
                 def on_change(change):
-                    if change['old'] == change['new']:
+                    if change["old"] == change["new"]:
                         return
 
-                    if change['new']:
+                    if change["new"]:
                         self._add_diagnostic(diag_obj)
                     else:
                         self._remove_diagnostic(diag_obj)
 
                     self._update_status()
+
                 return on_change
 
-            cb.observe(make_on_change(diag), names='value')
+            cb.observe(make_on_change(diag), names="value")
             checkboxes.append(cb)
 
         # Add pagination if needed
@@ -217,7 +274,7 @@ class DiagnosticSelectorUI:
                 self._go_next,
                 start_idx + 1,
                 end_idx,
-                total_diags
+                total_diags,
             )
             checkboxes.append(page_info)
             checkboxes.append(pagination)
@@ -235,13 +292,13 @@ class DiagnosticSelectorUI:
         regional_val = self._get_regional_value()
 
         self.generator.add_field(
-            module_name=self.file_config_widgets['module'].value,
+            module_name=self.file_config_widgets["module"].value,
             field_name=primary_name,
             file_name=self.file_name,
-            reduction_method=self.file_config_widgets['reduction'].value,
-            time_sampling='all',
+            reduction_method=self.file_config_widgets["reduction"].value,
+            time_sampling="all",
             regional_section=regional_val,
-            packing=self.file_config_widgets['packing'].value
+            packing=self.file_config_widgets["packing"].value,
         )
         self.selected_cache.add(diag.name)
 
@@ -258,28 +315,30 @@ class DiagnosticSelectorUI:
 
     def _get_regional_value(self) -> str:
         """Get regional section value from config widgets."""
-        regional_widgets = self.file_config_widgets['regional']
-        regional_type = regional_widgets['dropdown'].value
+        regional_widgets = self.file_config_widgets["regional"]
+        regional_type = regional_widgets["dropdown"].value
 
-        if regional_type == 'none':
-            return 'none'
-        elif regional_type == 'global':
-            return 'global'
-        elif regional_type == 'box':
-            lon_min = regional_widgets['lon_min'].value
-            lon_max = regional_widgets['lon_max'].value
-            lat_min = regional_widgets['lat_min'].value
-            lat_max = regional_widgets['lat_max'].value
-            vert_min = regional_widgets['vert_min'].value
-            vert_max = regional_widgets['vert_max'].value
-            return f'{lon_min} {lon_max} {lat_min} {lat_max} {vert_min} {vert_max}'
+        if regional_type == "none":
+            return "none"
+        elif regional_type == "global":
+            return "global"
+        elif regional_type == "box":
+            lon_min = regional_widgets["lon_min"].value
+            lon_max = regional_widgets["lon_max"].value
+            lat_min = regional_widgets["lat_min"].value
+            lat_max = regional_widgets["lat_max"].value
+            vert_min = regional_widgets["vert_min"].value
+            vert_max = regional_widgets["vert_max"].value
+            return f"{lon_min} {lon_max} {lat_min} {lat_max} {vert_min} {vert_max}"
 
-        return 'none'
+        return "none"
 
     def _update_status(self):
         """Update the header with selection count."""
         count = len(self.selected_cache)
-        self.header.value = f"<b style='color: #6c757d;'>Diagnostics (Selected: {count})</b>"
+        self.header.value = (
+            f"<b style='color: #6c757d;'>Diagnostics (Selected: {count})</b>"
+        )
         if self.on_selection_change:
             self.on_selection_change()
 
@@ -318,30 +377,48 @@ class DiagnosticSelectorUI:
         """
         # Control buttons
         select_all_btn = create_button(
-            'Select All Visible',
-            button_style='info',
-            icon='check-square',
-            width='150px',
-            on_click=self.select_all_visible
+            "Select All Visible",
+            button_style="info",
+            icon="check-square",
+            width="150px",
+            on_click=self.select_all_visible,
         )
 
         deselect_all_btn = create_button(
-            'Deselect All',
-            button_style='warning',
-            icon='square',
-            width='150px',
-            on_click=self.deselect_all
+            "Deselect All",
+            button_style="warning",
+            icon="square",
+            width="150px",
+            on_click=self.deselect_all,
         )
 
-        return widgets.VBox([
-            self.header,
-            widgets.HBox(
-                [self.search_widget, self.category_widget],
-                layout=widgets.Layout(margin='0 0 10px 0')
-            ),
-            widgets.HBox(
-                [select_all_btn, deselect_all_btn],
-                layout=widgets.Layout(margin='0 0 10px 0')
-            ),
-            self.diag_container
-        ])
+        has_diags = bool(self.parser.diagnostics)
+        diag_list_note = (
+            "<span style='color: #6c757d; font-size: 0.85em;'>Browse and select from available diagnostics below.</span>"
+            if has_diags
+            else "<span style='color: #856404; background: #fff3cd; padding: 4px 8px; border-radius: 4px; font-size: 0.85em;'>"
+            "No <code>available_diags</code> file loaded — diagnostic list unavailable. "
+            "Use <b>Add by name</b> above to add fields manually.</span>"
+        )
+
+        return widgets.VBox(
+            [
+                self.header,
+                widgets.HTML(
+                    "<b style='color: #6c757d; font-size: 0.85em;'>Add by name:</b> "
+                    "<span style='color: #856404; font-size: 0.8em;'>"
+                    "&#9888; Field names are not validated — a misspelled name may error out in the run.</span>"
+                ),
+                self.manual_field_widget,
+                widgets.HTML(diag_list_note, layout=widgets.Layout(margin="5px 0")),
+                widgets.HBox(
+                    [self.search_widget, self.category_widget],
+                    layout=widgets.Layout(margin="5px 0 10px 0"),
+                ),
+                widgets.HBox(
+                    [select_all_btn, deselect_all_btn],
+                    layout=widgets.Layout(margin="0 0 10px 0"),
+                ),
+                self.diag_container,
+            ]
+        )
